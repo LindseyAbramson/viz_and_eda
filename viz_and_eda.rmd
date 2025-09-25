@@ -83,3 +83,133 @@ weather_df |>
 
 ```
 
+
+Let's make a somewhat more interesting scatterplot
+```{r}
+weather_df |>
+  ggplot(aes(x=tmin, y=tmax, color=name)) +
+  geom_point(aes(size=prcp), alpha=0.3)+
+  geom_smooth(se=FALSE)+
+  facet_grid(. ~ name)
+
+#could also do shape=name to make different shapes instead of circles
+```
+
+
+Learning assessment:
+```{r}
+weather_df |>
+  filter(name=="CentralPark_NY") |>
+  mutate(
+    tmax_fahr = tmax *(9/5) +32,
+    tmin_fahr = tmin *(9/5) +31
+  ) |>
+  ggplot(aes(x=tmin_fahr, y=tmax_fahr)) +
+  geom_point() +
+  geom_smooth(se=FALSE, method="lm") #takes away confidence/error bands #method = lm is the linear regression smoothing method
+ 
+```
+
+## Small things
+```{r}
+weather_df |>
+  ggplot(aes(x=tmin, y=tmax, color=name, shape=name))+
+  #geom_point(alpha=0.3)+
+  geom_smooth(se=FALSE)
+```
+
+```{r}
+weather_df |>
+  ggplot(aes(x=tmin, y=tmax))+
+  geom_hex()
+```
+
+```{r}
+weather_df |>
+  ggplot(aes(x=tmin, y=tmax))+
+  geom_point(color="purple")
+```
+
+
+## Univariate plots
+```{r}
+weather_df |>
+  ggplot(aes(x=tmin))+
+  geom_histogram(colo="white", fill = "red")
+```
+
+```{r}
+weather_df |>
+  ggplot(aes(x=tmin, fill=name))+
+  geom_histogram()
+
+```
+
+```{r}
+weather_df |>
+  ggplot(aes(x=tmin, fill=name))+
+  geom_histogram() +
+  facet_grid(name ~ .)
+```
+
+density plot
+```{r}
+weather_df |>
+  ggplot(aes(x=tmin, fill=name))+
+  geom_density(alpha=0.2)
+
+# set aes outside of aes is setting for the entire figure not the individual data
+```
+
+```{r}
+weather_df |>
+  ggplot(aes(x=name, y=tmin)) +
+  geom_boxplot(aes(fill=name))
+```
+
+
+violin plots
+```{r}
+weather_df |>
+  ggplot(aes(x=name, y=tmin)) +
+  geom_violin()
+```
+
+ridge plot
+```{r}
+weather_df |>
+  ggplot(aes(x=tmin, y=name)) +
+  geom_density_ridges()
+```
+
+
+```{r}
+weather_df |>
+  ggplot(aes(x=prcp, fill=name))+
+  geom_density(alpha=0.2)
+
+weather_df |>
+  ggplot(aes(x=prcp, fill=name))+
+  geom_histogram()+
+  facet_grid(name ~ . )
+
+weather_df |>
+  filter(prcp>5, prcp<1000) |>
+  ggplot(aes(x=prcp, fill=name)) +
+  geom_density(alpha=0.2)
+```
+
+## Saving and embedding plots
+Saving plots
+```{r}
+ggp_weather_violin = 
+  weather_df |>
+  ggplot(aes(x=name, y=tmin, fill=name))+
+  geom_violin()
+
+ggp_weather_violin
+
+ggsave("plots/violin_plot.pdf", ggp_weather_violin, 
+       width = 8, height = 6)
+```
+
