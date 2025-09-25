@@ -1,0 +1,85 @@
+---
+title: "Viz I"
+output: github_document
+date: "2025-09-25"
+---
+Setup
+```{r}
+library(tidyverse)
+library(ggridges)
+```
+
+Import the weather data
+```{r}
+library(p8105.datasets)
+data("weather_df")
+```
+
+Making our first plot
+```{r}
+ggplot(data=weather_df, mapping=aes(x=tmin, y=tmax))+
+  geom_point()
+
+#or could write this way
+ggplot(weather_df, aes(x=tmin, y=tmax))+
+  geom_point()
+```
+
+
+```{r}
+#or like this
+weather_df |>
+  ggplot(aes(x=tmin, y=tmax))+
+  geom_point()
+```
+
+```{r}
+ggp_weather_scatterplot=
+  weather_df |>
+  ggplot(aes(x=tmin, y=tmax))+
+  geom_point()
+
+ggp_weather_scatterplot
+
+```
+
+Check that some rows are missing
+```{r}
+weather_df |>
+  filter(is.na(tmax))
+```
+
+
+## Fancier scatterplots!
+```{r}
+#scatter plot with smooth for whole thing
+weather_df |>
+  ggplot(aes(x=tmin, y=tmax)) + 
+  geom_point(aes(color=name), alpha=0.3) +
+  geom_smooth(se=FALSE)
+
+#scatterplot with smooth for each
+weather_df |>
+  ggplot(aes(x=tmin, y=tmax, color=name)) + 
+  geom_point(alpha=0.3) +
+  geom_smooth(se=FALSE)
+```
+
+```{r}
+weather_df |>
+  ggplot(aes(x=tmin, y=tmax))+
+           geom_point(aes(color=name, size=prcp), alpha=0.3)+
+           geom_smooth(se=FALSE)
+
+```
+
+Using faceting real quick
+```{r}
+weather_df |>
+  ggplot(aes(x=tmin, y=tmax)) +
+  geom_point(aes(color=name), alpha=0.3, size=0.8) +
+  geom_smooth(se=FALSE) +
+  facet_grid(name ~ .)
+
+```
+
