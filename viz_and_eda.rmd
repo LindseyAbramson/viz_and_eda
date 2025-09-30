@@ -213,3 +213,6 @@ ggsave("plots/violin_plot.pdf", ggp_weather_violin,
        width = 8, height = 6)
 ```
 
+
+embedding plots
+

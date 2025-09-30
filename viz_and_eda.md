@@ -421,3 +421,5 @@ ggsave("plots/violin_plot.pdf", ggp_weather_violin,
 
     ## Warning: Removed 17 rows containing non-finite outside the scale range
     ## (`stat_ydensity()`).
+
+embedding plots
