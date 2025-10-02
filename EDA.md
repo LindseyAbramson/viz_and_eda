@@ -262,10 +262,12 @@ What about lags?
 
 ``` r
 weather_df |>
+  group_by(name)|>
   mutate(lagged_tmax = lag(tmax))
 ```
 
     ## # A tibble: 2,190 × 8
+    ## # Groups:   name [3]
     ##    name           id         date        prcp  tmax  tmin month      lagged_tmax
     ##    <chr>          <chr>      <date>     <dbl> <dbl> <dbl> <date>           <dbl>
     ##  1 CentralPark_NY USW000947… 2021-01-01   157   4.4   0.6 2021-01-01        NA  
@@ -279,3 +281,87 @@ weather_df |>
     ##  9 CentralPark_NY USW000947… 2021-01-09     0   2.8  -4.3 2021-01-01         2.8
     ## 10 CentralPark_NY USW000947… 2021-01-10     0   5    -1.6 2021-01-01         2.8
     ## # ℹ 2,180 more rows
+
+Use the variables you create
+
+``` r
+weather_df |>
+  group_by(name) |>
+  mutate(
+    temp_change = tmax - lag(tmax)
+  ) |>
+  summarize(
+    sd_tmax_change = sd(temp_change, na.rm=TRUE),
+    tmax_change_max = max(temp_change, na.rm=TRUE)
+  )
+```
+
+    ## # A tibble: 3 × 3
+    ##   name           sd_tmax_change tmax_change_max
+    ##   <chr>                   <dbl>           <dbl>
+    ## 1 CentralPark_NY           4.43            12.2
+    ## 2 Molokai_HI               1.24             5.6
+    ## 3 Waterhole_WA             3.04            11.1
+
+Finding out what day that big change occured?
+
+``` r
+weather_df |>
+  group_by(name) |>
+  mutate(
+    temp_change = tmax - lag(tmax),
+    change_rank=min_rank(desc(temp_change))
+  ) |>
+  filter(
+    change_rank <2
+  )
+```
+
+    ## # A tibble: 4 × 9
+    ## # Groups:   name [3]
+    ##   name     id    date        prcp  tmax  tmin month      temp_change change_rank
+    ##   <chr>    <chr> <date>     <dbl> <dbl> <dbl> <date>           <dbl>       <int>
+    ## 1 Central… USW0… 2022-03-06    15  20     6.1 2022-03-01        12.2           1
+    ## 2 Molokai… USW0… 2021-01-19     0  27.8  21.1 2021-01-01         5.6           1
+    ## 3 Molokai… USW0… 2022-11-29     0  27.8  19.4 2022-11-01         5.6           1
+    ## 4 Waterho… USS0… 2022-12-22    76   1.5 -17.2 2022-12-01        11.1           1
+
+## Learning assessment
+
+``` r
+pulse_df = 
+  haven::read_sas("data/data_import_examples/public_pulse_data.sas7bdat") |>
+  janitor::clean_names() |>
+  pivot_longer(
+    bdi_score_bl:bdi_score_12m,
+    names_to = "visit",
+    values_to = "bdi"
+  ) |>
+  mutate(visit=fct_inorder(visit))
+
+pulse_df |>
+  ggplot(aes(x=visit, y=bdi))+
+  geom_boxplot()
+```
+
+    ## Warning: Removed 879 rows containing non-finite outside the scale range
+    ## (`stat_boxplot()`).
+
+<img src="EDA_files/figure-gfm/unnamed-chunk-17-1.png" width="90%" />
+
+``` r
+pulse_df |>
+  group_by(visit)|>
+  summarize(
+    mean_bdi = mean(bdi, na.rm=TRUE),
+    median_bdi = median(bdi, na.rm=TRUE)
+  ) |>
+  knitr::kable(digits=2)
+```
+
+| visit         | mean_bdi | median_bdi |
+|:--------------|---------:|-----------:|
+| bdi_score_bl  |     7.99 |          6 |
+| bdi_score_01m |     6.05 |          4 |
+| bdi_score_06m |     5.67 |          4 |
+| bdi_score_12m |     6.10 |          4 |

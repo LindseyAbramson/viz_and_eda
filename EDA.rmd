@@ -173,3 +173,30 @@ weather_df |>
   )
 ```
 
+
+## Learning assessment
+```{r}
+pulse_df = 
+  haven::read_sas("data/data_import_examples/public_pulse_data.sas7bdat") |>
+  janitor::clean_names() |>
+  pivot_longer(
+    bdi_score_bl:bdi_score_12m,
+    names_to = "visit",
+    values_to = "bdi"
+  ) |>
+  mutate(visit=fct_inorder(visit))
+
+pulse_df |>
+  ggplot(aes(x=visit, y=bdi))+
+  geom_boxplot()
+
+pulse_df |>
+  group_by(visit)|>
+  summarize(
+    mean_bdi = mean(bdi, na.rm=TRUE),
+    median_bdi = median(bdi, na.rm=TRUE)
+  ) |>
+  knitr::kable(digits=2)
+  
+```
+
